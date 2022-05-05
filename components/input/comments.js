@@ -10,7 +10,7 @@ function Comments(props) {
 
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingComments, setIsFetchingComments] = useState(false);
 
   function toggleCommentsHandler() {
     setShowComments((prevStatus) => !prevStatus);
@@ -18,15 +18,15 @@ function Comments(props) {
 
   useEffect(() => {
     if (showComments) {
-      setIsLoading(true);
+      setIsFetchingComments(true);
       fetch(`/api/comments/${eventId}`)
         .then((response) => response.json())
         .then((data) => {
           setComments(data.comments);
-          setIsLoading(false);
+          setIsFetchingComments(false);
         })
         .catch((error) => {
-          setIsLoading(false);
+          setIsFetchingComments(false);
         });
     }
   }, [showComments]);
@@ -34,8 +34,8 @@ function Comments(props) {
   function addCommentHandler(commentData) {
     // send data to API
     notificationCtx.showNotification({
-      title: "Adding...",
-      message: "Adding comment.",
+      title: "Sending comment...",
+      message: "Your comment is currently being stored into a databse.",
       status: "pending",
     });
 
@@ -57,8 +57,8 @@ function Comments(props) {
       })
       .then((data) => {
         notificationCtx.showNotification({
-          title: "Success!!",
-          message: "Successfully added.",
+          title: "Success!",
+          message: "Your comment was saved!",
           status: "success",
         });
       })
@@ -78,7 +78,11 @@ function Comments(props) {
       </button>
       {showComments && <NewComment onAddComment={addCommentHandler} />}
       {showComments &&
-        (isLoading ? "Loading..." : <CommentList items={comments} />)}
+        (isFetchingComments ? (
+          <p>Loading...</p>
+        ) : (
+          <CommentList items={comments} />
+        ))}
     </section>
   );
 }
